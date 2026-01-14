@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ToolBox Ultimate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a0033 50%, #000000 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        nav {
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(255,0,127,0.5);
+            padding: 1.5rem 2rem;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 10px 40px rgba(255,0,127,0.2);
+        }
+        .nav-container { max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+        .logo { font-size:28px; font-weight:bold; background:linear-gradient(90deg,#ff007f,#00d9ff,#ff007f); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:2px; }
+        .nav-buttons { display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center; }
+        .nav-btn {
+            background: rgba(255,0,127,0.1);
+            border: 2px solid rgba(255,0,127,0.3);
+            color: white; padding: .7rem 1rem; border-radius:.8rem; cursor:pointer; transition:all .4s;
+            font-size:.85rem; font-weight:bold;
+        }
+        .nav-btn:hover { background: linear-gradient(90deg,#ff007f,#00d9ff); border-color:#00d9ff; box-shadow:0 0 20px rgba(255,0,127,0.6); transform:translateY(-3px); }
+        .nav-btn.active { background: linear-gradient(90deg,#ff007f,#00d9ff); border-color:#00d9ff; box-shadow:0 0 30px rgba(255,0,127,0.8); }
+        .container { max-width:1400px; margin:2rem auto; padding:2rem; }
+        .tool-section { display:none; animation:fadeIn .6s ease-out; }
+        .tool-section.active { display:block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+        h1 { text-align:center; margin-bottom:2rem; font-size:3rem; background:linear-gradient(90deg,#ff007f,#00d9ff,#ff007f); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .card { background: linear-gradient(135deg, rgba(255,0,127,0.1), rgba(0,217,255,0.05)); backdrop-filter: blur(20px); border:2px solid rgba(255,0,127,0.3); border-radius:2rem; padding:2.5rem; box-shadow: 0 15px 60px rgba(255,0,127,0.15); text-align:center; }
+        .btn { background: linear-gradient(90deg,#ff007f,#ff4080); border:none; color:white; padding:1rem 2.5rem; border-radius:1rem; cursor:pointer; font-weight:bold; transition:all .4s; font-size:1.1rem; box-shadow:0 0 20px rgba(255,0,127,0.4); }
+        .btn:hover { transform:translateY(-5px); box-shadow:0 10px 40px rgba(255,0,127,0.6); }
+        .btn:active { transform:scale(0.95); }
+        .btn-secondary { background: linear-gradient(90deg, rgba(0,217,255,0.2), rgba(255,0,127,0.2)); border:2px solid rgba(0,217,255,0.5); }
+        input, textarea, select { background: rgba(0,0,0,0.5); border:2px solid rgba(255,0,127,0.3); color:white; padding:1rem; border-radius:.8rem; font-size:1rem; margin:.8rem 0; font-family:inherit; transition:all .3s; }
+        input:focus, textarea:focus, select:focus { outline:none; border-color:#00d9ff; box-shadow:0 0 20px rgba(0,217,255,0.5); background: rgba(0,217,255,0.05); }
+        textarea { resize:vertical; width:100%; min-height:120px; font-family:'Courier New', monospace; }
+        .display { font-size:4rem; font-weight:bold; background:linear-gradient(90deg,#ff007f,#00d9ff,#ff007f); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin:2.5rem 0; font-family:'Courier New', monospace; }
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin:1.5rem 0; }
+        .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin:1.5rem 0;}
+        .stat-box { background: linear-gradient(135deg, rgba(255,0,127,0.1), rgba(0,217,255,0.05)); padding:1.5rem; border-radius:1rem; border:2px solid rgba(255,0,127,0.2); }
+        .stat-number { font-size:2.5rem; font-weight:bold; background:linear-gradient(90deg,#ff007f,#00d9ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .stat-label { font-size:.9rem; color:#00d9ff; margin-top:.5rem; }
+        .home-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; margin-top:3rem; }
+        .home-card { background: linear-gradient(135deg, rgba(255,0,127,0.1), rgba(0,217,255,0.05)); border:2px solid rgba(255,0,127,0.3); border-radius:1.5rem; padding:1.5rem; text-align:center; transition:all .4s; cursor:pointer; }
+        .home-card:hover { transform:translateY(-8px); border-color:#00d9ff; box-shadow:0 15px 50px rgba(255,0,127,0.3); }
+        .home-icon { font-size:3rem; margin-bottom:.8rem; }
+        .home-title { font-size:1.2rem; font-weight:bold; color:#ff007f; margin:.5rem 0; }
+        .home-desc { font-size:.85rem; color:#00d9ff; }
+        .coin { width:150px; height:150px; position:relative; border-radius:50%; transform-style:preserve-3d; transition:transform .1s linear; margin:0 auto; }
+        .face { position:absolute; width:100%; height:100%; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:24px; font-weight:bold; backface-visibility:hidden; border:6px solid #b8860b; box-shadow:0 10px 40px rgba(255,215,0,0.4); }
+        .pile { background: linear-gradient(135deg,#ffd700,#ffed4e); color:#000; }
+        .face-text { background: linear-gradient(135deg,#c0c0c0,#e8e8e8); color:#000; transform:rotateY(180deg); }
+        .params-box { background: linear-gradient(135deg, rgba(255,0,127,0.1), rgba(0,217,255,0.05)); border:2px solid rgba(255,0,127,0.3); border-radius:1.5rem; padding:1.5rem; }
+        .params-title { font-size:1.2rem; font-weight:bold; color:#00d9ff; margin-bottom:1rem; }
+        input[type="color"] { width:100%; height:120px; cursor:pointer; padding:0; border:2px solid rgba(255,0,127,0.3) !important; margin:1rem 0; background:none; }
+        .qr-container { text-align:center; margin:2rem 0; }
+        .qr-code { background:white; padding:1.5rem; border-radius:1rem; display:inline-block; margin:1rem 0; }
+        .lap-item { padding:.8rem; border-bottom:1px solid rgba(255,0,127,0.2); display:flex; justify-content:space-between; background: rgba(255,0,127,0.05); margin:.5rem 0; border-radius:.5rem; }
+        .dice-value { display:inline-block; min-width:60px; height:60px; margin:.5rem; background: linear-gradient(135deg, rgba(255,0,127,0.2), rgba(0,217,255,0.1)); border:3px solid rgba(255,0,127,0.5); border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; color:#00d9ff; box-shadow:0 5px 20px rgba(255,0,127,0.3); transition:all .3s ease; }
+        .dice-value:hover { transform:translateY(-5px); box-shadow:0 10px 30px rgba(255,0,127,0.5); }
+        .translator-actions { display:flex; gap:.5rem; align-items:center; }
+        .small-btn { padding:.6rem .9rem; font-size:.95rem; border-radius:.8rem; }
+        .mic-on { background: linear-gradient(90deg,#ff1744,#ff5252); box-shadow:0 6px 20px rgba(255,23,68,0.3); }
+        @media (max-width:768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            h1 { font-size:2rem; }
+            .display { font-size:2.5rem; }
+            .nav-btn { padding:.5rem .7rem; font-size:.65rem; }
+            .home-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .translator-actions { flex-direction:column; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">⚡ ToolBox</div>
+            <div class="nav-buttons">
+                <button class="nav-btn active" data-tool="home" onclick="showTool('home', this)">🏠 Accueil</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- HOME -->
+        <div id="home" class="tool-section active">
+            <h1>⚡ ToolBox Ultimate</h1>
+            <div class="home-grid">
+                <div class="home-card" data-target="timer"><div class="home-icon">⏱️</div><div class="home-title">Chronomètre</div><div class="home-desc">Mesure du temps</div></div>
+                <div class="home-card" data-target="countdown"><div class="home-icon">⏰</div><div class="home-title">Minuteur</div><div class="home-desc">Compte à rebours</div></div>
+                <div class="home-card" data-target="spinner"><div class="home-icon">🎡</div><div class="home-title">Roue</div><div class="home-desc">Roue de la fortune</div></div>
+                <div class="home-card" data-target="dice"><div class="home-icon">🎲</div><div class="home-title">Dés</div><div class="home-desc">Lancer de dés</div></div>
+                <div class="home-card" data-target="qrcode"><div class="home-icon">📱</div><div class="home-title">QR Code</div><div class="home-desc">Générateur QR</div></div>
+                <div class="home-card" data-target="color"><div class="home-icon">🎨</div><div class="home-title">Couleur</div><div class="home-desc">Sélecteur de couleur</div></div>
+                <div class="home-card" data-target="converter"><div class="home-icon">🔄</div><div class="home-title">Convertisseur</div><div class="home-desc">Unités de mesure</div></div>
+                <div class="home-card" data-target="code"><div class="home-icon">{'</>'}</div><div class="home-title">Formateur</div><div class="home-desc">Format code</div></div>
+                <div class="home-card" data-target="coin"><div class="home-icon">🟡</div><div class="home-title">Pile/Face</div><div class="home-desc">Lancer de pièce</div></div>
+                <div class="home-card" data-target="typing"><div class="home-icon">⌨️</div><div class="home-title">Test Frappe</div><div class="home-desc">Vitesse de frappe</div></div>
+                <div class="home-card" data-target="translator"><div class="home-icon">🌐</div><div class="home-title">Traducteur</div><div class="home-desc">Traduction</div></div>
+                <div class="home-card" data-target="morse"><div class="home-icon">📡</div><div class="home-title">Code Morse</div><div class="home-desc">Convertisseur morse</div></div>
+            </div>
+        </div>
+
+        <!-- CHRONOMÈTRE -->
+        <div id="timer" class="tool-section">
+            <h1>⏱️ Chronomètre</h1>
+            <div class="card">
+                <div class="display" id="timerDisplay">00:00:00.00</div>
+                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                    <button id="timerStartBtn" class="btn" type="button">▶️ Démarrer</button>
+                    <button id="timerLapBtn" class="btn btn-secondary" type="button">📍 Lap</button>
+                    <button id="timerResetBtn" class="btn btn-secondary" type="button">🔄 Réini</button>
+                </div>
+                <div id="lapsList" style="margin-top:1.5rem; max-height:300px; overflow-y:auto;"></div>
+            </div>
+        </div>
+
+        <!-- MINUTEUR -->
+        <div id="countdown" class="tool-section">
+            <h1>⏰ Minuteur</h1>
+            <div class="card">
+                <div style="margin-bottom:1.5rem;">
+                    <label style="color:#00d9ff;">Temps (MM:SS):</label>
+                    <input type="text" id="countdownInput" value="01:00" placeholder="MM:SS" />
+                </div>
+                <div class="display" id="countdownDisplay">01:00</div>
+                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                    <button id="countdownStartBtn" class="btn" type="button">▶️ Démarrer</button>
+                    <button id="countdownResetBtn" class="btn btn-secondary" type="button">🔄 Réini</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROUE -->
+        <div id="spinner" class="tool-section">
+            <h1>🎡 Roue Tournante</h1>
+            <div style="display:grid;grid-template-columns:1fr 280px;gap:2rem;align-items:start;">
+                <div class="card" style="text-align:center;">
+                    <canvas id="spinnerCanvas" width="400" height="400" style="max-width:100%; height:auto; margin:0 auto; display:block;"></canvas>
+                    <button id="spinBtn" class="btn" style="width:100%; margin-top:2rem;" type="button">Tourner</button>
+                </div>
+                <div class="params-box card">
+                    <div class="params-title">⚙️ Propriétés</div>
+                    <label style="color:#00d9ff; font-weight:bold;">Éléments:</label>
+                    <textarea id="spinnerInput" placeholder="Elem1,Elem2,Elem3" style="height:150px;"></textarea>
+                    <button id="updateSpinnerBtn" class="btn" style="width:100%; margin-top:1rem;" type="button">✓ Mettre à jour</button>
+                    <div id="spinResult" style="margin-top:2rem; padding:1rem; background: rgba(255,0,127,0.1); border-radius:.8rem; border:2px solid rgba(255,0,127,0.3); display:none;">
+                        <div style="color:#00d9ff; font-size:.9rem; font-weight:bold;">Résultat:</div>
+                        <div id="spinResultText" style="color:#ff007f; font-size:1.3rem; font-weight:bold; margin-top:.5rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DÉS -->
+        <div id="dice" class="tool-section">
+            <h1>🎲 Lancer de Dés</h1>
+            <div class="card">
+                <div class="grid-2">
+                    <div>
+                        <label style="color:#00d9ff; font-weight:bold;">Nombre de dés:</label>
+                        <input type="number" id="numDice" value="1" min="1" max="10" style="width:100%;" />
+                    </div>
+                    <div>
+                        <label style="color:#00d9ff; font-weight:bold;">Faces du dé:</label>
+                        <input type="number" id="numFaces" value="6" min="2" max="100" style="width:100%;" />
+                    </div>
+                </div>
+                <button id="rollDiceBtn" class="btn" style="width:100%; margin:2rem 0;" type="button">🎲 Lancer</button>
+                <div id="diceOutput" style="display:none; text-align:center;">
+                    <div id="diceNumbers" style="margin:2rem 0; min-height:80px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap;"></div>
+                    <div style="color:#00d9ff; font-size:1.2rem; font-weight:bold; margin-top:2rem;">Somme:</div>
+                    <div id="diceTotal" style="background: linear-gradient(90deg,#ff007f,#00d9ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-size:3.5rem; font-weight:bold; margin-top:1rem; transition:all .3s ease;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR CODE -->
+        <div id="qrcode" class="tool-section">
+            <h1>📱 Générateur QR</h1>
+            <div class="card">
+                <input type="text" id="qrInput" placeholder="URL ou texte" />
+                <button id="generateQRBtn" class="btn" style="width:100%; margin:1rem 0;" type="button">Générer QR</button>
+                <div class="qr-container" id="qrContainer"></div>
+            </div>
+        </div>
+
+        <!-- COULEUR -->
+        <div id="color" class="tool-section">
+            <h1>🎨 Sélecteur Couleur</h1>
+            <div class="card">
+                <input type="color" id="colorPicker" value="#ff007f" />
+                <div style="margin:1rem 0; font-family:'Courier New', monospace; font-size:1.1rem;">
+                    <div id="colorHex">HEX: #ff007f</div>
+                    <div id="colorRgb" style="margin-top:.5rem;">RGB: rgb(255, 0, 127)</div>
+                </div>
+                <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                    <button id="copyHexBtn" class="btn" type="button">📋 HEX</button>
+                    <button id="copyRgbBtn" class="btn" type="button">📋 RGB</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONVERTISSEUR -->
+        <div id="converter" class="tool-section">
+            <h1>🔄 Convertisseur</h1>
+            <div class="card">
+                <div style="margin-bottom:2rem; text-align:center;">
+                    <label style="color:#00d9ff; font-weight:bold; font-size:1.2rem; margin-bottom:1rem; display:block;">Type de conversion:</label>
+                    <select id="convType" style="width:100%; max-width:400px; font-size:1.1rem;">
+                        <option value="length">📏 Longueur / Distance</option>
+                        <option value="weight">⚖️ Poids / Masse</option>
+                        <option value="volume">🧪 Volume / Capacité</option>
+                        <option value="temperature">🌡️ Température</option>
+                        <option value="currency">💰 Monnaie</option>
+                        <option value="area">🔲 Surface</option>
+                        <option value="speed">⚡ Vitesse</option>
+                        <option value="data">💾 Données</option>
+                        <option value="time">⏱️ Temps</option>
+                    </select>
+                </div>
+                <div class="grid-2" style="gap:3rem;">
+                    <div style="text-align:center; border-right:2px solid rgba(255,0,127,0.3); padding-right:2rem;">
+                        <label style="color:#00d9ff; font-weight:bold; font-size:1.1rem; display:block; margin-bottom:1rem;">De:</label>
+                        <select id="convFrom" style="width:100%; margin-bottom:2rem;"></select>
+                        <input type="number" id="convValue" value="1" step="0.01" style="width:100%; font-size:1.3rem; text-align:center;" />
+                    </div>
+                    <div style="text-align:center; padding-left:2rem;">
+                        <label style="color:#00d9ff; font-weight:bold; font-size:1.1rem; display:block; margin-bottom:1rem;">Vers:</label>
+                        <select id="convTo" style="width:100%; margin-bottom:2rem;"></select>
+                        <div id="convResult" style="background: linear-gradient(90deg,#ff007f,#00d9ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-size:1.8rem; font-weight:bold;">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORMATEUR CODE -->
+        <div id="code" class="tool-section">
+            <h1>{'</>'} Formateur Code</h1>
+            <div class="card">
+                <textarea id="codeInput" placeholder="Collez votre code...">function hello(){console.log("world")}</textarea>
+                <button id="formatCodeBtn" class="btn" style="width:100%; margin:1rem 0;" type="button">✓ Formater & Corriger</button>
+                <textarea id="codeOutput" placeholder="Code formaté..." readonly style="background: rgba(0,217,255,0.05); border-color: rgba(0,217,255,0.3);"></textarea>
+                <button id="copyCodeBtn" class="btn" style="width:100%; margin-top:1rem;" type="button">📋 Copier</button>
+                <div style="margin-top:.75rem; font-size:.85rem; color:#00d9ff;">Le formateur applique un formatage amélioré et tente de corriger les erreurs fréquentes. Pour un résultat parfait, utilisez un formateur dédié (Prettier/Beautify).</div>
+            </div>
+        </div>
+
+        <!-- PILE OU FACE (sans affichage texte du résultat demandé) -->
+        <div id="coin" class="tool-section">
+            <h1>🟡 Pile ou Face</h1>
+            <div class="card">
+                <div style="margin:3rem 0; height:180px; display:flex; align-items:center; justify-content:center;">
+                    <div class="coin" id="coinElement">
+                        <div class="face pile">PILE</div>
+                        <div class="face face-text">FACE</div>
+                    </div>
+                </div>
+                <button id="flipCoinBtn" class="btn" style="width:100%; margin-bottom:2rem;" type="button">Lancer 🟡</button>
+            </div>
+        </div>
+
+        <!-- TEST FRAPPE -->
+        <div id="typing" class="tool-section">
+            <h1>⌨️ Test de Frappe</h1>
+            <div class="card">
+                <p id="typingSample" style="background: rgba(255,0,127,0.1); padding:1.5rem; border-radius:.8rem; margin-bottom:1.5rem; line-height:1.8; border:2px solid rgba(255,0,127,0.2);">
+                    Le JavaScript est un langage de programmation incontournable pour le développement web moderne. Il permet de créer des interfaces dynamiques et réactives. Les développeurs apprécient sa flexibilité et sa communauté engagée.
+                </p>
+                <textarea id="typingInput" placeholder="Cliquez sur Démarrer et tapez ici..."></textarea>
+                <div class="grid-3">
+                    <div class="stat-box"><div class="stat-number" id="typingWpm">0</div><div class="stat-label">Mots/min</div></div>
+                    <div class="stat-box"><div class="stat-number" id="typingAccuracy">0%</div><div class="stat-label">Précision</div></div>
+                    <div class="stat-box"><div class="stat-number" id="typingTime">0s</div><div class="stat-label">Temps</div></div>
+                </div>
+                <button id="typingBtn" class="btn" style="width:100%; margin-top:1rem;" type="button">▶️ Démarrer</button>
+            </div>
+        </div>
+
+        <!-- TRADUCTEUR -->
+        <div id="translator" class="tool-section">
+            <h1>🌐 Traducteur</h1>
+            <div class="card">
+                <div class="grid-2">
+                    <div>
+                        <label style="color:#00d9ff;">De:</label>
+                        <select id="transFrom">
+                            <option value="auto">Détection automatique</option>
+                            <option value="fr" selected>Français</option>
+                            <option value="en">Anglais</option>
+                            <option value="es">Espagnol</option>
+                            <option value="de">Allemand</option>
+                            <option value="it">Italien</option>
+                            <option value="pt">Portugais</option>
+                            <option value="ru">Russe</option>
+                            <option value="ja">Japonais</option>
+                            <option value="zh">Chinois</option>
+                            <option value="ko">Coréen</option>
+                            <option value="ar">Arabe</option>
+                            <option value="hi">Hindi</option>
+                            <option value="bn">Bengali</option>
+                            <option value="sv">Suédois</option>
+                            <option value="nl">Néerlandais</option>
+                            <option value="pl">Polonais</option>
+                            <option value="tr">Turc</option>
+                            <option value="vi">Vietnamien</option>
+                            <option value="id">Indonésien</option>
+                            <option value="uk">Ukrainien</option>
+                            <option value="el">Grec</option>
+                            <option value="he">Hébreu</option>
+                            <option value="cs">Tchèque</option>
+                            <option value="ro">Roumain</option>
+                            <option value="hu">Hongrois</option>
+                            <option value="ms">Malais</option>
+                            <option value="th">Thaï</option>
+                            <option value="tl">Filipino</option>
+                            <option value="ca">Catalan</option>
+                            <option value="sk">Slovaque</option>
+                            <option value="hr">Croate</option>
+                            <option value="sr">Serbe</option>
+                            <option value="bg">Bulgare</option>
+                            <option value="lt">Lituanien</option>
+                            <option value="lv">Letton</option>
+                            <option value="et">Estonien</option>
+                        </select>
+                        <textarea id="transInput" placeholder="Texte à traduire..." style="margin-top:.5rem;">Bonjour le monde</textarea>
+                    </div>
+                    <div>
+                        <label style="color:#00d9ff;">Vers:</label>
+                        <select id="transTo">
+                            <option value="en">Anglais</option>
+                            <option value="fr" selected>Français</option>
+                            <option value="es">Espagnol</option>
+                            <option value="de">Allemand</option>
+                            <option value="it">Italien</option>
+                            <option value="pt">Portugais</option>
+                            <option value="ru">Russe</option>
+                            <option value="ja">Japonais</option>
+                            <option value="zh">Chinois</option>
+                            <option value="ko">Coréen</option>
+                            <option value="ar">Arabe</option>
+                            <option value="hi">Hindi</option>
+                            <option value="bn">Bengali</option>
+                            <option value="sv">Suédois</option>
+                            <option value="nl">Néerlandais</option>
+                            <option value="pl">Polonais</option>
+                            <option value="tr">Turc</option>
+                            <option value="vi">Vietnamien</option>
+                            <option value="id">Indonésien</option>
+                            <option value="uk">Ukrainien</option>
+                            <option value="el">Grec</option>
+                            <option value="he">Hébreu</option>
+                            <option value="cs">Tchèque</option>
+                            <option value="ro">Roumain</option>
+                            <option value="hu">Hongrois</option>
+                            <option value="ms">Malais</option>
+                            <option value="th">Thaï</option>
+                            <option value="tl">Filipino</option>
+                            <option value="ca">Catalan</option>
+                            <option value="sk">Slovaque</option>
+                            <option value="hr">Croate</option>
+                            <option value="sr">Serbe</option>
+                            <option value="bg">Bulgare</option>
+                            <option value="lt">Lituanien</option>
+                            <option value="lv">Letton</option>
+                            <option value="et">Estonien</option>
+                        </select>
+                        <textarea id="transOutput" placeholder="Traduction..." readonly style="background: rgba(0,217,255,0.05); border-color: rgba(0,217,255,0.3); margin-top:.5rem"></textarea>
+                    </div>
+                </div>
+                <div style="display:flex;gap:.5rem;margin-top:.5rem" class="translator-actions">
+                    <button id="translateBtn" class="btn small-btn" type="button">Traduire</button>
+                    <button id="speakBtn" class="btn small-btn" type="button">🔊 Écouter</button>
+                    <button id="micBtn" class="btn small-btn" type="button">🎤 Parler</button>
+                    <div style="flex:1"></div>
+                </div>
+                <div style="margin-top:.75rem; font-size:.85rem; color:#00d9ff;">Lecture vocale via SpeechSynthesis. Reconnaissance vocale si disponible (appuyer sur 🎤 puis parler).</div>
+            </div>
+        </div>
+
+        <!-- CODE MORSE -->
+        <div id="morse" class="tool-section">
+            <h1>📡 Code Morse</h1>
+            <div class="card">
+                <div class="grid-2">
+                    <div>
+                        <label style="color:#00d9ff;">Texte:</label>
+                        <textarea id="morseInput" placeholder="Entrez du texte..."></textarea>
+                        <button id="toMorseBtn" class="btn" style="width:100%; margin-top:1rem;" type="button">📡 Convertir en Morse</button>
+                    </div>
+                    <div>
+                        <label style="color:#00d9ff;">Morse:</label>
+                        <textarea id="morseOutput" placeholder="Code morse..."></textarea>
+                        <button id="toTextBtn" class="btn" style="width:100%; margin-top:1rem;" type="button">🔄 Convertir en Texte</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* Changements demandés :
+       - Ajout d'unités métriques "dg, cg, hg, dl, cl, dal, m3, kl" etc. (voir conversions).
+       - Formateur amélioré : évite d'insérer de ; dans les structures for/if/while, préserve chaînes et commentaires (placeholders), indentation plus fiable.
+       - Auto-format lors de la saisie (debounce).
+       - Aucune autre modification fonctionnelle majeure.
+    */
+
+    function pad(n, width = 2) { return String(n).padStart(width, '0'); }
+
+    // ========== NAVIGATION ==========
+    function showTool(toolName, btnElement) {
+        document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
+        const section = document.getElementById(toolName);
+        if (section) section.classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+        else {
+            const btn = document.querySelector(`.nav-btn[data-tool="${toolName}"]`);
+            if (btn) btn.classList.add('active');
+        }
+        window.scrollTo(0, 0);
+    }
+    document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => {
+        const t = card.dataset.target; if (t) showTool(t);
+    }));
+
+    // ========== AUDIO HELPERS ==========
+    function playAudioBeepAt(ac, time, freq, duration = 0.12, gainLevel = 0.25) {
+        const osc = ac.createOscillator();
+        const g = ac.createGain();
+        osc.connect(g); g.connect(ac.destination);
+        osc.frequency.value = freq; osc.type = 'sine';
+        g.gain.setValueAtTime(gainLevel, time);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+        osc.start(time); osc.stop(time + duration);
+    }
+    function playCountdownBeep() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ac = new AudioCtx();
+            let t = ac.currentTime + 0.05;
+            const pairBeepFreq = 1000, beepDur = 0.12, intraPairGap = 0.08, interPairGap = 0.3;
+            for (let pair=0; pair<3; pair++) {
+                playAudioBeepAt(ac, t, pairBeepFreq, beepDur); t += beepDur + intraPairGap;
+                playAudioBeepAt(ac, t, pairBeepFreq, beepDur); t += beepDur + interPairGap;
+            }
+            setTimeout(()=>{ try{ ac.close && ac.close(); }catch(e){} }, 2000);
+        } catch(e) { console.warn('playCountdownBeep not available', e); }
+    }
+    function playSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.connect(gain); gain.connect(audioContext.destination);
+            oscillator.frequency.value = 800; oscillator.type = 'sine';
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.5);
+        } catch(e) { console.warn('playSound unavailable', e); }
+    }
+    function playAlarmSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const frequencies = [800,1000,800,1000,800,1000];
+            let currentTime = audioContext.currentTime;
+            frequencies.forEach(freq => {
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                oscillator.connect(gain); gain.connect(audioContext.destination);
+                oscillator.frequency.value = freq; oscillator.type='sine';
+                const duration = 0.25;
+                gain.gain.setValueAtTime(0.35, currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+                oscillator.start(currentTime); oscillator.stop(currentTime + duration);
+                currentTime += duration;
+            });
+        } catch(e) { console.warn('playAlarmSound unavailable', e); }
+    }
+
+    // ========== CHRONOMÈTRE ==========
+    let timerInterval = null, timerMs = 0, timerRunning = false, laps = [];
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerStartBtn = document.getElementById('timerStartBtn');
+    const timerLapBtn = document.getElementById('timerLapBtn');
+    const timerResetBtn = document.getElementById('timerResetBtn');
+    const lapsList = document.getElementById('lapsList');
+    function updateTimerDisplay() {
+        const hours = Math.floor(timerMs / 3600000);
+        const mins = Math.floor((timerMs % 3600000) / 60000);
+        const secs = Math.floor((timerMs % 60000) / 1000);
+        const centis = Math.floor((timerMs % 1000) / 10);
+        timerDisplay.textContent = `${pad(hours)}:${pad(mins)}:${pad(secs)}.${pad(centis,2)}`;
+    }
+    timerStartBtn.addEventListener('click', () => {
+        timerRunning = !timerRunning;
+        if (timerRunning) {
+            timerInterval = setInterval(()=>{ timerMs += 10; updateTimerDisplay(); }, 10);
+            timerStartBtn.textContent = '⏸️ Pause';
+        } else {
+            clearInterval(timerInterval); timerInterval = null; timerStartBtn.textContent = '▶️ Démarrer';
+        }
+    });
+    timerLapBtn.addEventListener('click', () => { if (timerRunning || timerMs > 0) { laps.push(timerMs); renderLaps(); } });
+    timerResetBtn.addEventListener('click', () => { timerRunning=false; clearInterval(timerInterval); timerInterval=null; timerMs=0; laps=[]; updateTimerDisplay(); timerStartBtn.textContent='▶️ Démarrer'; lapsList.innerHTML=''; });
+    function renderLaps() {
+        lapsList.innerHTML=''; laps.forEach((lap,i)=> {
+            const hours = Math.floor(lap / 3600000);
+            const mins = Math.floor((lap % 3600000) / 60000);
+            const secs = Math.floor((lap % 60000) / 1000);
+            const centis = Math.floor((lap % 1000) / 10);
+            const lapTime = `${pad(hours)}:${pad(mins)}:${pad(secs)}.${pad(centis,2)}`;
+            const el = document.createElement('div'); el.className='lap-item';
+            el.innerHTML = `<span>Lap ${i+1}</span><strong>${lapTime}</strong>`;
+            lapsList.appendChild(el);
+        });
+    }
+    updateTimerDisplay();
+
+    // ========== MINUTEUR ==========
+    let countdownInterval = null, countdownMs = 60000, countdownRunning = false;
+    const countdownInput = document.getElementById('countdownInput');
+    const countdownDisplay = document.getElementById('countdownDisplay');
+    const countdownStartBtn = document.getElementById('countdownStartBtn');
+    const countdownResetBtn = document.getElementById('countdownResetBtn');
+    function parseCountdownInput() {
+        const parts = (countdownInput.value || '0:0').split(':').map(s => parseInt(s,10) || 0);
+        const mm = parts[0] || 0, ss = parts[1] || 0;
+        return mm*60000 + ss*1000;
+    }
+    function updateCountdownDisplay() {
+        const mins = Math.floor(countdownMs / 60000);
+        const secs = Math.floor((countdownMs % 60000) / 1000);
+        countdownDisplay.textContent = `${pad(mins)}:${pad(secs)}`;
+    }
+    countdownStartBtn.addEventListener('click', () => {
+        countdownRunning = !countdownRunning;
+        if (countdownRunning) {
+            if (countdownMs <= 0) countdownMs = parseCountdownInput();
+            countdownInterval = setInterval(()=> {
+                if (countdownMs > 0) { countdownMs = Math.max(0, countdownMs - 100); updateCountdownDisplay(); }
+                else { clearInterval(countdownInterval); countdownInterval=null; countdownRunning=false; playCountdownBeep(); }
+            }, 100);
+            countdownStartBtn.textContent = '⏸️ Pause';
+        } else {
+            clearInterval(countdownInterval); countdownInterval=null; countdownStartBtn.textContent='▶️ Démarrer';
+        }
+    });
+    countdownResetBtn.addEventListener('click', () => { countdownRunning=false; clearInterval(countdownInterval); countdownInterval=null; countdownMs = parseCountdownInput(); updateCountdownDisplay(); countdownStartBtn.textContent='▶️ Démarrer'; });
+    countdownInput.addEventListener('keyup', (e)=> { if (e.key === ':' || e.key === 'Enter') { countdownMs = parseCountdownInput(); updateCountdownDisplay(); } });
+    countdownMs = parseCountdownInput(); updateCountdownDisplay();
+
+    // ========== ROUE ==========
+    let spinnerItems = ['Option 1','Option 2','Option 3'];
+    let spinnerRotation = 0, spinning=false;
+    const spinnerCanvas = document.getElementById('spinnerCanvas');
+    const spinnerInput = document.getElementById('spinnerInput');
+    const spinBtn = document.getElementById('spinBtn');
+    const updateSpinnerBtn = document.getElementById('updateSpinnerBtn');
+    const spinResult = document.getElementById('spinResult');
+    const spinResultText = document.getElementById('spinResultText');
+    function safeSplitItems(text) { return (text||'').split(',').map(s=>s.trim()).filter(Boolean).slice(0,500); }
+    spinnerInput.value = spinnerItems.join(',');
+    function drawSpinner() {
+        if (!spinnerCanvas) return;
+        const ctx = spinnerCanvas.getContext('2d');
+        const centerX = spinnerCanvas.width/2, centerY = spinnerCanvas.height/2, radius = Math.min(centerX, centerY)-40;
+        ctx.clearRect(0,0,spinnerCanvas.width, spinnerCanvas.height);
+        ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(spinnerRotation);
+        const colors = ['#ff007f','#00d9ff','#ff4080','#00b8d4','#ff6ba3','#00e5ff','#ff1493','#00d4ff'];
+        const sliceAngle = (2*Math.PI)/Math.max(1, spinnerItems.length);
+        for (let i=0;i<spinnerItems.length;i++){
+            const startAngle = i*sliceAngle, endAngle = startAngle+sliceAngle;
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,radius,startAngle,endAngle); ctx.closePath();
+            ctx.fillStyle = colors[i % colors.length]; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=1.5; ctx.stroke();
+            const textAngle = startAngle + sliceAngle/2, textX = Math.cos(textAngle)*(radius-50), textY = Math.sin(textAngle)*(radius-50);
+            ctx.save(); ctx.translate(textX, textY); ctx.rotate(textAngle); ctx.fillStyle='white'; ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(spinnerItems[i].substring(0,14), 0, 0); ctx.restore();
+        }
+        ctx.beginPath(); ctx.arc(0,0,24,0,2*Math.PI); ctx.fillStyle='#ff007f'; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+        ctx.restore();
+        ctx.save(); ctx.translate(centerX + radius + 20, centerY); ctx.rotate(Math.PI); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-25,-15); ctx.lineTo(-25,15); ctx.closePath(); ctx.fillStyle='#ff007f'; ctx.fill(); ctx.restore();
+    }
+    updateSpinnerBtn.addEventListener('click', () => { const items = safeSplitItems(spinnerInput.value); spinnerItems = items.length ? items : ['Option 1','Option 2','Option 3']; drawSpinner(); });
+    spinBtn.addEventListener('click', () => {
+        if (spinning || spinnerItems.length === 0) return;
+        spinning = true; if (spinResult) spinResult.style.display = 'none';
+        const spins = 5 + Math.floor(Math.random()*3), randomDegree = Math.random()*360;
+        const totalRotation = spins*2*Math.PI + (randomDegree*Math.PI/180);
+        const startRotation = spinnerRotation, startTime = performance.now(), duration = 3500;
+        function animate(now) {
+            const elapsed = now - startTime; const progress = Math.min(elapsed/duration, 1); const easeOut = 1 - Math.pow(1-progress, 3);
+            spinnerRotation = startRotation + easeOut * totalRotation; drawSpinner();
+            if (progress < 1) requestAnimationFrame(animate);
+            else {
+                spinning = false;
+                const normalizedRotation = ((spinnerRotation % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+                const sliceAngle = (2*Math.PI)/spinnerItems.length;
+                let selectedIndex = Math.floor((2*Math.PI - normalizedRotation) / sliceAngle);
+                selectedIndex = ((selectedIndex % spinnerItems.length) + spinnerItems.length) % spinnerItems.length;
+                if (spinResultText) spinResultText.textContent = spinnerItems[selectedIndex] || '';
+                if (spinResult) spinResult.style.display = 'block';
+                playSound();
+            }
+        }
+        requestAnimationFrame(animate);
+    });
+    drawSpinner();
+
+    // ========== DÉS ==========
+    const rollDiceBtn = document.getElementById('rollDiceBtn');
+    const numDiceEl = document.getElementById('numDice');
+    const numFacesEl = document.getElementById('numFaces');
+    const diceOutput = document.getElementById('diceOutput');
+    const diceNumbers = document.getElementById('diceNumbers');
+    const diceTotal = document.getElementById('diceTotal');
+    rollDiceBtn.addEventListener('click', () => {
+        if (diceOutput) diceOutput.style.display = 'block';
+        diceTotal.textContent = '?';
+        const n = Math.max(1, Math.min(20, parseInt(numDiceEl.value,10) || 1));
+        const faces = Math.max(2, Math.min(1000, parseInt(numFacesEl.value,10) || 6));
+        const duration = 1200, start = performance.now();
+        let final = Array.from({length:n}, ()=>Math.floor(Math.random()*faces)+1);
+        const finalSum = final.reduce((a,b)=>a+b,0);
+        function anim(now) {
+            const t = Math.min(1, (now-start)/duration);
+            const interval = 50 + t*200;
+            if (!anim._last || (now - anim._last) > interval) {
+                anim._last = now;
+                const temp = Array.from({length:n}, ()=>Math.floor(Math.random()*faces)+1);
+                diceNumbers.innerHTML = temp.map(v=>`<div class="dice-value">${v}</div>`).join('');
+                diceTotal.textContent = temp.reduce((a,b)=>a+b,0);
+            }
+            if (t < 1) requestAnimationFrame(anim);
+            else {
+                diceNumbers.innerHTML = final.map(v=>`<div class="dice-value">${v}</div>`).join('');
+                diceTotal.textContent = finalSum;
+                diceTotal.style.transform = 'scale(1.07)';
+                setTimeout(()=>{ diceTotal.style.transform = ''; }, 220);
+                playAlarmSound();
+            }
+        }
+        requestAnimationFrame(anim);
+    });
+
+    // ========== QR CODE ==========
+    const qrInput = document.getElementById('qrInput');
+    const qrContainer = document.getElementById('qrContainer');
+    const generateQRBtn = document.getElementById('generateQRBtn');
+    function generateQR() {
+        const text = (qrInput.value || '').trim(); qrContainer.innerHTML = '';
+        if (!text) return;
+        try {
+            new QRCode(qrContainer, { text, width:300, height:300, colorDark:'#000000', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.H });
+        } catch(e) { qrContainer.textContent = 'Erreur génération QR'; }
+    }
+    generateQRBtn.addEventListener('click', generateQR);
+
+    // ========== COULEUR ==========
+    const colorPicker = document.getElementById('colorPicker');
+    const colorHex = document.getElementById('colorHex');
+    const colorRgb = document.getElementById('colorRgb');
+    const copyHexBtn = document.getElementById('copyHexBtn');
+    const copyRgbBtn = document.getElementById('copyRgbBtn');
+    function updateColor() {
+        const color = colorPicker.value || '#ff007f';
+        const r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
+        colorHex.textContent = `HEX: ${color.toUpperCase()}`;
+        colorRgb.textContent = `RGB: rgb(${r}, ${g}, ${b})`;
+    }
+    colorPicker.addEventListener('input', updateColor);
+    copyHexBtn.addEventListener('click', ()=> navigator.clipboard.writeText(colorPicker.value || '').catch(()=>{}));
+    copyRgbBtn.addEventListener('click', ()=> {
+        const c = colorPicker.value || '#ff007f';
+        const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
+        navigator.clipboard.writeText(`rgb(${r}, ${g}, ${b})`).catch(()=>{});
+    });
+    updateColor();
+
+    // ========== CONVERTISSEUR (UNITÉS ÉTENDUES) ==========
+    const conversions = {
+        // Length (units per meter)
+        'm': { base:1, type:'length' },
+        'km': { base:0.001, type:'length' },
+        'cm': { base:100, type:'length' },
+        'mm': { base:1000, type:'length' },
+        'μm': { base:1000000, type:'length' },
+        'nm': { base:1000000000, type:'length' },
+        'Å': { base:1e10, type:'length' }, // angstrom
+        'inch': { base:39.37007874015748, type:'length' },
+        'ft': { base:3.280839895013123, type:'length' },
+        'yard': { base:1.0936132983377078, type:'length' },
+        'mile': { base:0.0006213711922373339, type:'length' },
+        'nmi': { base:0.0005399568034557235, type:'length' },
+        'au': { base: 1 / 149597870700, type:'length' },
+        'pc': { base: 1 / 3.08567758149137e16, type:'length' },
+        'ly': { base: 1.0570008340247e-16, type:'length' },
+
+        // Weight (units per kilogram)
+        'kg': { base:1, type:'weight' },
+        'g': { base:1000, type:'weight' },
+        'dg': { base:10000, type:'weight' }, // decigram
+        'cg': { base:100000, type:'weight' }, // centigram
+        'mg': { base:1000000, type:'weight' },
+        'hg': { base:10, type:'weight' }, // hectogram
+        'tonne': { base:0.001, type:'weight' }, // metric ton
+        'lb': { base:2.2046226218488, type:'weight' },
+        'oz': { base:35.27396194958041, type:'weight' },
+        'st': { base:0.1574730444177697, type:'weight' },
+        'carat': { base:5000, type:'weight' }, // carats per kg
+        'us_ton': { base:0.0011023113109244, type:'weight' },
+
+        // Volume (units per litre)
+        'l': { base:1, type:'volume' },
+        'ml': { base:1000, type:'volume' },
+        'dl': { base:10, type:'volume' },   // deciliter
+        'cl': { base:100, type:'volume' },  // centiliter
+        'dal': { base:0.1, type:'volume' }, // decaliter (10 L)
+        'm3': { base:0.001, type:'volume' }, // cubic meter = 1000 L => 1 L = 0.001 m3
+        'kl': { base:0.001, type:'volume' }, // kiloliter (kL) 1 L = 0.001 kL
+        'gallon': { base:0.2641720523581484, type:'volume' }, // US gallon
+        'imp_gallon': { base:0.2199692482990884, type:'volume' }, // imperial gallon
+        'quart': { base:1.0566882094325936, type:'volume' },
+        'pint': { base:2.1133764188651873, type:'volume' },
+        'cup': { base:4.226752837730374, type:'volume' },
+        'tbsp': { base:67.62804511714724, type:'volume' },
+        'tsp': { base:202.88411535144172, type:'volume' },
+        'fl_oz': { base:33.814022701843, type:'volume' },
+
+        // Area (units per square meter)
+        'm2': { base:1, type:'area' },
+        'cm2': { base:10000, type:'area' },
+        'mm2': { base:1000000, type:'area' },
+        'km2': { base:0.000001, type:'area' },
+        'sqft': { base:10.763910416709722, type:'area' },
+        'sqin': { base:1550.0031000062004, type:'area' },
+        'acre': { base:0.00024710538146716534, type:'area' },
+        'hectare': { base:0.0001, type:'area' },
+
+        // Speed (units per m/s)
+        'm/s': { base:1, type:'speed' },
+        'km/h': { base:3.6, type:'speed' },
+        'mph': { base:2.2369362920544025, type:'speed' },
+        'knot': { base:1.9438444924406046, type:'speed' },
+
+        // Data (units per byte)
+        'B': { base:1, type:'data' },
+        'bit': { base:8, type:'data' },
+        'KB': { base:1/1024, type:'data' },
+        'KiB': { base:1/1024, type:'data' },
+        'MB': { base:1/(1024**2), type:'data' },
+        'MiB': { base:1/(1024**2), type:'data' },
+        'GB': { base:1/(1024**3), type:'data' },
+        'GiB': { base:1/(1024**3), type:'data' },
+        'TB': { base:1/(1024**4), type:'data' },
+        'TiB': { base:1/(1024**4), type:'data' },
+
+        // Time (units per second)
+        's': { base:1, type:'time' },
+        'ms': { base:1000, type:'time' },
+        'μs': { base:1000000, type:'time' },
+        'min': { base:1/60, type:'time' },
+        'h': { base:1/3600, type:'time' },
+        'day': { base:1/86400, type:'time' },
+        'week': { base:1/604800, type:'time' },
+        'year': { base:1/31536000, type:'time' }
+    };
+
+    const currencyRates = { 'EUR':1, 'USD':1.08, 'GBP':0.87, 'JPY':160.5, 'CNY':7.4, 'AUD':1.6, 'CAD':1.45, 'CHF':0.98, 'INR':89.5 };
+
+    const convType = document.getElementById('convType');
+    const convFrom = document.getElementById('convFrom');
+    const convTo = document.getElementById('convTo');
+    const convValue = document.getElementById('convValue');
+    const convResult = document.getElementById('convResult');
+
+    function populateSelect(selectEl, units) {
+        selectEl.innerHTML = '';
+        units.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u; opt.textContent = u;
+            selectEl.appendChild(opt);
+        });
+    }
+
+    function changeConversionType() {
+        const type = convType.value;
+        if (type === 'length') {
+            populateSelect(convFrom, ['m','km','cm','mm','μm','nm','Å','inch','ft','yard','mile','nmi','au','pc','ly']);
+            populateSelect(convTo, ['m','km','cm','mm','μm','nm','Å','inch','ft','yard','mile','nmi','au','pc','ly']);
+        } else if (type === 'weight') {
+            populateSelect(convFrom, ['kg','g','dg','cg','mg','hg','tonne','lb','oz','st','carat','us_ton']);
+            populateSelect(convTo, ['kg','g','dg','cg','mg','hg','tonne','lb','oz','st','carat','us_ton']);
+        } else if (type === 'volume') {
+            populateSelect(convFrom, ['l','ml','dl','cl','dal','m3','kl','gallon','imp_gallon','quart','pint','cup','tbsp','tsp','fl_oz']);
+            populateSelect(convTo, ['l','ml','dl','cl','dal','m3','kl','gallon','imp_gallon','quart','pint','cup','tbsp','tsp','fl_oz']);
+        } else if (type === 'temperature') {
+            populateSelect(convFrom, ['C','F','K']);
+            populateSelect(convTo, ['C','F','K']);
+        } else if (type === 'currency') {
+            populateSelect(convFrom, Object.keys(currencyRates));
+            populateSelect(convTo, Object.keys(currencyRates));
+        } else if (type === 'area') {
+            populateSelect(convFrom, ['m2','cm2','mm2','km2','sqft','sqin','acre','hectare']);
+            populateSelect(convTo, ['m2','cm2','mm2','km2','sqft','sqin','acre','hectare']);
+        } else if (type === 'speed') {
+            populateSelect(convFrom, ['m/s','km/h','mph','knot']);
+            populateSelect(convTo, ['m/s','km/h','mph','knot']);
+        } else if (type === 'data') {
+            populateSelect(convFrom, ['B','bit','KB','KiB','MB','MiB','GB','GiB','TB','TiB']);
+            populateSelect(convTo, ['B','bit','KB','KiB','MB','MiB','GB','GiB','TB','TiB']);
+        } else if (type === 'time') {
+            populateSelect(convFrom, ['s','ms','μs','min','h','day','week','year']);
+            populateSelect(convTo, ['s','ms','μs','min','h','day','week','year']);
+        }
+        convertValue();
+    }
+
+    function convertTemperature(value, from, to) {
+        let c;
+        from = from.toUpperCase(); to = to.toUpperCase();
+        if (from === 'C') c = value;
+        else if (from === 'F') c = (value - 32) * 5/9;
+        else if (from === 'K') c = value - 273.15;
+        else c = value;
+        let result;
+        if (to === 'C') result = c;
+        else if (to === 'F') result = c * 9/5 + 32;
+        else if (to === 'K') result = c + 273.15;
+        else result = c;
+        return result;
+    }
+
+    function convertValue() {
+        const type = convType.value;
+        const value = parseFloat(convValue.value);
+        const from = convFrom.value;
+        const to = convTo.value;
+        if (isNaN(value)) { convResult.textContent = '0'; return; }
+        if (type === 'temperature') {
+            const res = convertTemperature(value, from, to);
+            const display = (Math.abs(res) < 0.0001 || Math.abs(res) > 1000000) ? res.toExponential(4) : parseFloat(res.toFixed(4)).toString();
+            convResult.textContent = display; return;
+        }
+        if (type === 'currency') {
+            const fromRate = currencyRates[from] || 1, toRate = currencyRates[to] || 1;
+            const res = value * (toRate / fromRate);
+            convResult.textContent = (Math.abs(res) < 0.0001 || Math.abs(res) > 1000000) ? res.toExponential(4) : res.toFixed(4).replace(/\.?0+$/,'');
+            return;
+        }
+        if (!conversions[from] || !conversions[to]) { convResult.textContent = 'Incompatible'; return; }
+        if (conversions[from].type !== conversions[to].type) { convResult.textContent = 'Incompatible'; return; }
+        try {
+            const fromFactor = conversions[from].base;
+            const toFactor = conversions[to].base;
+            const result = (value / fromFactor) * toFactor;
+            let display;
+            if (Math.abs(result) < 0.0001 || Math.abs(result) > 1000000) display = result.toExponential(4);
+            else display = result.toFixed(6).replace(/\.?0+$/,'');
+            convResult.textContent = display;
+        } catch(e) { convResult.textContent = 'Erreur'; }
+    }
+
+    convType.addEventListener('change', changeConversionType);
+    convFrom.addEventListener('change', convertValue);
+    convTo.addEventListener('change', convertValue);
+    convValue.addEventListener('input', convertValue);
+    changeConversionType();
+
+    // ========== FORMATEUR CODE (AMÉLIORÉ) ==========
+    const formatCodeBtn = document.getElementById('formatCodeBtn');
+    const copyCodeBtn = document.getElementById('copyCodeBtn');
+    const codeInput = document.getElementById('codeInput');
+    const codeOutput = document.getElementById('codeOutput');
+
+    // We'll protect strings and comments with placeholders to avoid altering them accidentally.
+    function extractPlaceholders(s) {
+        const strings = [];
+        const comments = [];
+
+        // Extract block comments first
+        s = s.replace(/\/\*[\s\S]*?\*\//g, match => {
+            const id = comments.length;
+            comments.push(match);
+            return `__COMMENT_${id}__`;
+        });
+
+        // Extract line comments
+        s = s.replace(/\/\/[^\n]*/g, match => {
+            const id = comments.length;
+            comments.push(match);
+            return `__COMMENT_${id}__`;
+        });
+
+        // Extract template literals (backticks)
+        s = s.replace(/`(?:\\[\s\S]|[^`])*`/g, match => {
+            const id = strings.length;
+            strings.push(match);
+            return `__STRING_${id}__`;
+        });
+
+        // Extract double-quoted strings
+        s = s.replace(/"(?:\\.|[^"\\])*"/g, match => {
+            const id = strings.length;
+            strings.push(match);
+            return `__STRING_${id}__`;
+        });
+
+        // Extract single-quoted strings
+        s = s.replace(/'(?:\\.|[^'\\])*'/g, match => {
+            const id = strings.length;
+            strings.push(match);
+            return `__STRING_${id}__`;
+        });
+
+        return { s, strings, comments };
+    }
+
+    function restorePlaceholders(s, strings, comments) {
+        // restore strings first (they were stored earlier)
+        s = s.replace(/__STRING_(\d+)__/g, (_, n) => strings[Number(n)] || '');
+        s = s.replace(/__COMMENT_(\d+)__/g, (_, n) => comments[Number(n)] || '');
+        return s;
+    }
+
+    // Improved heuristic formatter for C-like/JS code
+    function basicCodeCorrections(src) {
+        if (!src) return '';
+
+        // Normalize line endings
+        let text = src.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+        // Extract placeholders
+        const placeholders = extractPlaceholders(text);
+        text = placeholders.s;
+        const strings = placeholders.strings;
+        const comments = placeholders.comments;
+
+        // Trim leading/trailing blank lines
+        text = text.replace(/^\s+\n/, '').replace(/\n\s+$/, '');
+
+        // Ensure space before braces like "){" -> ") {"
+        text = text.replace(/\)\{/g, ') {');
+
+        // Add spaces after commas
+        text = text.replace(/,(\S)/g, ', $1');
+
+        // Break braces to their own lines for clearer structure
+        // But be careful not to break "for(...;...;...)" - we only add newline after '{' and before '}'.
+        text = text.replace(/\s*\{\s*/g, ' {\n').replace(/\s*\}\s*/g, '\n}\n');
+
+        // Split into lines and process semicolons & indentation heuristics
+        const rawLines = text.split('\n');
+
+        const processed = [];
+        for (let i = 0; i < rawLines.length; i++) {
+            let line = rawLines[i].replace(/\s+$/,''); // rtrim
+            let trimmed = line.trim();
+
+            if (!trimmed) { processed.push(''); continue; }
+
+            // Skip placeholder lines (strings/comments) - they keep their markers
+            // Skip lines that are only braces
+            if (trimmed === '{' || trimmed === '}') {
+                processed.push(trimmed);
+                continue;
+            }
+
+            // Skip lines that are comments (comment placeholders start with __COMMENT_)
+            if (/^__COMMENT_\d+__$/.test(trimmed)) { processed.push(trimmed); continue; }
+
+            // Skip import/export/directives (do not append ;)
+            if (/^\s*(import|export|#)/.test(trimmed)) { processed.push(trimmed); continue; }
+
+            // Control structures that should not get a trailing semicolon
+            const controlStart = /^(if|else|for|while|switch|try|catch|function|class|do|else if)\b/.test(trimmed);
+            if (controlStart) {
+                processed.push(trimmed);
+                continue;
+            }
+
+            // If ends with ; already, keep
+            if (trimmed.endsWith(';')) {
+                processed.push(trimmed);
+                continue;
+            }
+
+            // If ends with ':' (labels, case), keep
+            if (trimmed.endsWith(':')) {
+                processed.push(trimmed);
+                continue;
+            }
+
+            // If line ends with ')' — could be a function declaration or a call.
+            // Add semicolon only if it's likely a standalone call/expression (not function declaration or control)
+            if (/\)\s*$/.test(trimmed)) {
+                // Check previous token to avoid adding ; to "for(...)" or "if(...)" lines (those match controlStart above)
+                // Also avoid adding ; after function declarations like "function foo()"
+                if (/^function\b/.test(trimmed) || /^class\b/.test(trimmed)) {
+                    processed.push(trimmed);
+                    continue;
+                }
+                // If line contains '=>' (arrow) skip
+                if (trimmed.includes('=>')) { processed.push(trimmed); continue; }
+                // Otherwise assume it's a call or expression -> add semicolon
+                processed.push(trimmed + ';');
+                continue;
+            }
+
+            // If looks like assignment or expression, add semicolon
+            if (/[=+\-*/%^]=?/.test(trimmed) || /[\w$]+\(.*\)/.test(trimmed) || /^[\w$]+\.[\w$]+/.test(trimmed) || /^[\w$]+\s*=/ .test(trimmed)) {
+                processed.push(trimmed + ';');
+                continue;
+            }
+
+            // fallback: keep line
+            processed.push(trimmed);
+        }
+
+        text = processed.join('\n');
+
+        // Collapse multiple blank lines
+        text = text.replace(/\n{3,}/g, '\n\n');
+
+        // Balance braces: add missing closing braces if necessary
+        const openCount = (text.match(/\{/g) || []).length;
+        const closeCount = (text.match(/\}/g) || []).length;
+        if (openCount > closeCount) {
+            text = text + '\n' + '}\n'.repeat(openCount - closeCount);
+        }
+
+        // Indentation pass: increase indent after lines ending with '{', decrease on lines starting with '}'
+        const lines = text.split('\n');
+        let indent = 0;
+        for (let i = 0; i < lines.length; i++) {
+            let t = lines[i].trim();
+            if (t === '') { lines[i] = ''; continue; }
+            if (t.startsWith('}')) indent = Math.max(0, indent - 1);
+            lines[i] = '  '.repeat(indent) + t;
+            if (t.endsWith('{')) indent++;
+        }
+        text = lines.join('\n').trim();
+
+        // Restore strings and comments
+        text = restorePlaceholders(text, strings, comments);
+
+        return text;
+    }
+
+    // Debounced auto-format while typing
+    let autoFormatTimer = null;
+    const AUTO_FORMAT_DELAY = 800;
+
+    function runAutoFormat() {
+        const src = codeInput.value || '';
+        const formatted = basicCodeCorrections(src);
+        if (formatted && formatted !== src) {
+            // update both input and output (user asked to correct at the same time)
+            codeInput.value = formatted;
+            codeOutput.value = formatted;
+        } else {
+            codeOutput.value = formatted || src;
+        }
+    }
+
+    codeInput.addEventListener('input', () => {
+        clearTimeout(autoFormatTimer);
+        autoFormatTimer = setTimeout(runAutoFormat, AUTO_FORMAT_DELAY);
+    });
+
+    codeInput.addEventListener('blur', () => { clearTimeout(autoFormatTimer); runAutoFormat(); });
+
+    formatCodeBtn.addEventListener('click', () => {
+        const input = codeInput.value || '';
+        const corrected = basicCodeCorrections(input);
+        codeOutput.value = corrected;
+        codeInput.value = corrected; // replace input to "corriger en meme temps"
+    });
+
+    copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeOutput.value || codeInput.value || '').catch(()=>{});
+    });
+
+    // ========== COIN (pile/face sans texte résultat) ==========
+    const flipCoinBtn = document.getElementById('flipCoinBtn');
+    const coinElement = document.getElementById('coinElement');
+    let coinSpinning = false, coinRotation = 0;
+    flipCoinBtn.addEventListener('click', () => {
+        if (coinSpinning) return;
+        coinSpinning = true;
+        const isPile = Math.random() < 0.5;
+        const spinsCount = 6 + Math.floor(Math.random()*3);
+        const extra = isPile ? 0 : 180;
+        const startRotation = coinRotation;
+        const targetRotation = startRotation + (spinsCount * 360) + extra;
+        const totalRotation = targetRotation - startRotation;
+        const duration = 1600, startTime = performance.now();
+        function animate(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            coinRotation = startRotation + easeOut * totalRotation;
+            if (coinElement) coinElement.style.transform = `rotateY(${coinRotation}deg)`;
+            if (progress < 1) requestAnimationFrame(animate);
+            else {
+                coinSpinning = false;
+                coinRotation = targetRotation;
+                if (coinElement) coinElement.style.transform = `rotateY(${coinRotation}deg)`;
+                playSound();
+            }
+        }
+        requestAnimationFrame(animate);
+    });
+
+    // ========== TEST FRAPPE ==========
+    const typingBtn = document.getElementById('typingBtn');
+    let typingRunning=false, typingStartTime=0, typingTimer=null;
+    const typingInput = document.getElementById('typingInput');
+    typingBtn.addEventListener('click', () => {
+        typingRunning = !typingRunning;
+        if (typingRunning) {
+            typingInput.value = '';
+            typingStartTime = Date.now();
+            typingBtn.textContent = '⏹️ Arrêter';
+            typingTimer = setInterval(updateTypingStats, 100);
+            typingInput.focus();
+        } else {
+            typingBtn.textContent = '▶️ Démarrer';
+            clearInterval(typingTimer);
+        }
+    });
+    function updateTypingStats() {
+        if (!typingRunning) return;
+        const input = typingInput.value || '';
+        const sample = document.getElementById('typingSample').textContent || '';
+        const elapsed = (Date.now() - typingStartTime) / 1000;
+        const words = input.trim().split(/\s+/).filter(w=>w.length>0).length;
+        const wpm = elapsed>0 ? Math.round((words/elapsed)*60) : 0;
+        let correct = 0;
+        for (let i=0;i<Math.min(input.length, sample.length); i++) if (input[i] === sample[i]) correct++;
+        const accuracy = input.length>0 ? Math.round((correct / input.length) * 100) : 0;
+        document.getElementById('typingWpm').textContent = wpm;
+        document.getElementById('typingAccuracy').textContent = accuracy + '%';
+        document.getElementById('typingTime').textContent = Math.floor(elapsed) + 's';
+    }
+
+    // ========== TRADUCTEUR (Google attempt + voix + micro) ==========
+    const transInput = document.getElementById('transInput');
+    const transFrom = document.getElementById('transFrom');
+    const transTo = document.getElementById('transTo');
+    const transOutput = document.getElementById('transOutput');
+    const translateBtn = document.getElementById('translateBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const micBtn = document.getElementById('micBtn');
+    const translationCache = {};
+
+    const languageLocales = {
+        'auto':'', 'fr':'fr-FR','en':'en-US','es':'es-ES','de':'de-DE','it':'it-IT','pt':'pt-PT','ru':'ru-RU',
+        'ja':'ja-JP','zh':'zh-CN','ko':'ko-KR','ar':'ar-SA','hi':'hi-IN','bn':'bn-BD','sv':'sv-SE','nl':'nl-NL',
+        'pl':'pl-PL','tr':'tr-TR','vi':'vi-VN','id':'id-ID','uk':'uk-UA','el':'el-GR','he':'he-IL','cs':'cs-CZ',
+        'ro':'ro-RO','hu':'hu-HU','ms':'ms-MY','th':'th-TH','tl':'tl-PH','ca':'ca-ES','sk':'sk-SK','hr':'hr-HR',
+        'sr':'sr-RS','bg':'bg-BG','lt':'lt-LT','lv':'lv-LV','et':'et-EE'
+    };
+
+    function decodeHTMLEntities(str) {
+        const txt = document.createElement('textarea'); txt.innerHTML = str; return txt.value;
+    }
+
+    async function translate() {
+        const text = (transInput.value || '').trim();
+        let from = (transFrom.value || 'fr');
+        const to = (transTo.value || 'en');
+        if (!text) { transOutput.value = ''; return; }
+        const cacheKey = `${from}-${to}-${text}`;
+        if (translationCache[cacheKey]) { transOutput.value = translationCache[cacheKey]; return; }
+        transOutput.value = 'Traduction (Google) en cours...';
+        const q = encodeURIComponent(text);
+        const sl = encodeURIComponent(from);
+        const tl = encodeURIComponent(to);
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${q}`;
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Fetch non-ok');
+            const data = await resp.json();
+            let translatedText = '';
+            if (Array.isArray(data) && Array.isArray(data[0])) {
+                translatedText = data[0].map(segment => Array.isArray(segment) ? segment[0] : '').join('');
+            } else if (data && data.responseData && data.responseData.translatedText) {
+                translatedText = data.responseData.translatedText;
+            }
+            translatedText = decodeHTMLEntities(translatedText || '');
+            if (translatedText) {
+                transOutput.value = translatedText;
+                translationCache[cacheKey] = translatedText;
+                return;
+            } else throw new Error('Aucun texte traduit retourné');
+        } catch(err) {
+            console.warn('Récupération automatique échouée:', err);
+            const gtUrl = `https://translate.google.com/?sl=${encodeURIComponent(from)}&tl=${encodeURIComponent(to)}&text=${encodeURIComponent(text)}&op=translate`;
+            transOutput.value = 'Impossible d\'obtenir automatiquement la traduction. Ouverture de Google Traduction...';
+            try { window.open(gtUrl, '_blank'); } catch(e) { transOutput.value = `Ouvrez Google Traduction manuellement: ${gtUrl}`; }
+            return;
+        }
+    }
+    translateBtn.addEventListener('click', translate);
+
+    // ========== Text-to-Speech ==========
+    function speakText() {
+        let text = (transOutput.value || '').trim();
+        let lang = transTo.value || 'en';
+        if (!text) { text = (transInput.value || '').trim(); lang = transFrom.value || 'fr'; if (!text) return; }
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = languageLocales[lang] || lang;
+        try {
+            const voices = speechSynthesis.getVoices();
+            const match = voices.find(v => v.lang && v.lang.startsWith((utter.lang || '').split('-')[0]));
+            if (match) utter.voice = match;
+        } catch(e){}
+        speechSynthesis.cancel(); speechSynthesis.speak(utter);
+    }
+    speakBtn.addEventListener('click', speakText);
+
+    // ========== Speech-to-Text (recognition) ==========
+    let recognition = null; let recognizing = false;
+    function initRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+        if (!SpeechRecognition) return null;
+        const rec = new SpeechRecognition(); rec.interimResults = false; rec.maxAlternatives = 1; rec.continuous = false;
+        return rec;
+    }
+    function startRecognition() {
+        if (recognizing) { if (recognition) recognition.stop(); return; }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+        if (!SpeechRecognition) { alert('La reconnaissance vocale n\'est pas supportée par votre navigateur.'); return; }
+        if (!recognition) recognition = initRecognition();
+        if (!recognition) { alert('La reconnaissance vocale n\'est pas disponible.'); return; }
+        recognition.lang = languageLocales[transFrom.value] || transFrom.value || 'fr-FR';
+        recognition.onstart = () => { recognizing = true; micBtn.classList.add('mic-on'); micBtn.textContent = '🎤 Écoute...'; };
+        recognition.onend = () => { recognizing = false; micBtn.classList.remove('mic-on'); micBtn.textContent = '🎤 Parler'; };
+        recognition.onerror = (e) => { console.warn('Recognition error', e); recognizing = false; micBtn.classList.remove('mic-on'); micBtn.textContent='🎤 Parler'; alert('Erreur reconnaissance vocale: ' + (e.error || 'unknown')); };
+        recognition.onresult = (evt) => {
+            const res = evt.results && evt.results[0] && evt.results[0][0] && evt.results[0][0].transcript;
+            if (res) {
+                transInput.value = res;
+                translate();
+            }
+        };
+        try { recognition.start(); } catch(e){ console.warn('recognition.start() failed', e); }
+    }
+    micBtn.addEventListener('click', startRecognition);
+
+    // ========== MORSE ==========
+    const morseMap = {
+        'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....',
+        'I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.',
+        'Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-',
+        'Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-',
+        '5':'.....','6':'-....','7':'--...','8':'---..','9':'----.','.':'.-.-.-',',':'--..--',
+        '?':'..--..',"'":'.----.','!':'-.-.--','/':'-..-.','(':'-.--.',')':'-.--.-','&':'.-...',
+        ':':'---...',';':'-.-.-.','=':'-...-','+':'.-.-.','-':'-....-','_':'..--.-','"':'.-..-.',
+        '$':'...-..-','@':'.--.-.'
+    };
+    const reverseMorseMap = Object.fromEntries(Object.entries(morseMap).map(([k,v])=>[v,k]));
+    const toMorseBtn = document.getElementById('toMorseBtn');
+    const toTextBtn = document.getElementById('toTextBtn');
+    const morseInput = document.getElementById('morseInput');
+    const morseOutput = document.getElementById('morseOutput');
+    function textToMorse() {
+        const text = (morseInput.value || '').toUpperCase();
+        const morseResult = [];
+        for (const ch of text) {
+            if (ch === ' ') morseResult.push('/');
+            else if (morseMap[ch]) morseResult.push(morseMap[ch]);
+        }
+        morseOutput.value = morseResult.join(' ');
+    }
+    function morseToText() {
+        const morse = (morseOutput.value || '').trim();
+        if (!morse) { morseInput.value = ''; return; }
+        const words = morse.split(' / ');
+        const textResult = words.map(word => word.split(' ').filter(Boolean).map(letter => reverseMorseMap[letter] || '').join(''));
+        morseInput.value = textResult.join(' ');
+    }
+    toMorseBtn.addEventListener('click', textToMorse);
+    toTextBtn.addEventListener('click', morseToText);
+
+    // ===== Final init =====
+    drawSpinner();
+    updateColor();
+    changeConversionType();
+
+    if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); }; }
+    </script>
+</body>
+</html>
