@@ -1,2 +1,2 @@
 # ToolBox-Ultimate
-un site regroupant plus outils outils.
+un site regroupant plus outils
